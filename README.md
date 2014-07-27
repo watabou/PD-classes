@@ -1,4 +1,4 @@
 PD-classes
 ==========
 
-Simple game library for Android
+Simple game library for Android.
