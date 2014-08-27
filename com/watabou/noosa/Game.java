@@ -32,6 +32,7 @@ import com.watabou.utils.SystemTime;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.media.AudioManager;
 import android.opengl.GLES20;
@@ -47,6 +48,7 @@ import android.view.View;
 public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTouchListener {
 
 	public static Game instance;
+	private static Context context;
 	
 	// Actual size of the screen
 	public static int width;
@@ -91,6 +93,9 @@ public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTou
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
 		super.onCreate( savedInstanceState );
+		
+		//Criado para manter o contexto e poder fazer a busca dos resources
+		context = getApplicationContext();
 		
 		BitmapCache.context = TextureCache.context = instance = this;
 		
@@ -279,7 +284,7 @@ public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTou
 			scene.destroy();
 		}
 		scene = requestedScene;
-		scene.create();
+		scene.create(instance);
 		
 		Game.elapsed = 0f;
 		Game.timeScale = 1f;
@@ -303,5 +308,12 @@ public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTou
 	
 	public static void vibrate( int milliseconds ) {
 		((Vibrator)instance.getSystemService( VIBRATOR_SERVICE )).vibrate( milliseconds );
+	}
+	
+	public static String getVar(int id){
+		return context.getResources().getString(id);
+	}
+	public static String[] getVars(int id){
+		return context.getResources().getStringArray(id);
 	}
 }

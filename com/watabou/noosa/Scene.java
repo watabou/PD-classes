@@ -23,7 +23,7 @@ public class Scene extends Group {
 	
 	private Signal.Listener<Keys.Key> keyListener;
 	
-	public void create() {
+	public void create(Game game) {
 		Keys.event.add( keyListener = new Signal.Listener<Keys.Key>() {
 			@Override
 			public void onSignal( Keys.Key key ) {
