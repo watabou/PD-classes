@@ -111,7 +111,8 @@ public class BitmapText extends Visual {
 			RectF rect = font.get( text.charAt( i ) );
 	
 			if (rect == null) {
-				rect=null;
+				//Corrigido
+				rect = new RectF(0.61035156f, 0.0f, 0.61816406f, 0.53125f);;
 			}
 			float w = font.width( rect );
 			float h = font.height( rect );
@@ -166,6 +167,10 @@ public class BitmapText extends Visual {
 		for (int i=0; i < length; i++) {
 			RectF rect = font.get( text.charAt( i ) );
 	
+			//Corrigido
+			if (rect == null) {
+				rect = new RectF(0.61035156f, 0.0f, 0.61816406f, 0.53125f);;
+			}
 			float w = font.width( rect );
 			float h = font.height( rect );
 			
@@ -321,7 +326,26 @@ public class BitmapText extends Visual {
 		}
 		
 		public RectF get( char ch ) {
-			return super.get( autoUppercase ? Character.toUpperCase( ch ) : ch );
+			String str;
+			str = (ch+"")
+					.replaceAll("[ãâàáä]",  "a")  
+		            .replaceAll("[êèéë&]",  "e")  
+		            .replaceAll("[îìíï]",   "i")  
+		            .replaceAll("[õôòóö]",  "o")  
+		            .replaceAll("[ûúùü]",   "u")  
+		            .replaceAll("[ÃÂÀÁÄ]",  "A")  
+		            .replaceAll("[ÊÈÉË]",   "E")  
+		            .replaceAll("[ÎÌÍÏ]",   "I")  
+		            .replaceAll("[ÕÔÒÓÖ]",  "O")  
+		            .replaceAll("[ÛÙÚÜ]",   "U")  
+
+		            .replace('ç',   'c')  
+		            .replace('Ç',   'C')  
+		            .replace('ñ',   'n')  
+		            .replace('Ñ',   'N')  
+		            /*.replaceAll("[^a-zA-Z]", " ")*/;  
+			
+			return super.get( autoUppercase ? Character.toUpperCase(str.charAt(0)) : str.charAt(0) );
 		}
 	}
 }

@@ -86,7 +86,12 @@ public class BitmapTextMultiline extends BitmapText {
 
 				for (int k=0; k < length; k++) {
 					RectF rect = font.get( word.charAt( k ) );
-			
+					
+					//Corrigido
+					if (rect == null) {
+						rect = new RectF(0.61035156f, 0.0f, 0.61816406f, 0.53125f);;
+					}
+					
 					float w = font.width( rect );
 					float h = font.height( rect );
 					
@@ -142,6 +147,10 @@ public class BitmapTextMultiline extends BitmapText {
 		for (int i=0; i < length; i++) {
 			
 			RectF rect = font.get( word.charAt( i ) );
+			//Corrigido
+			if (rect == null) {
+				rect = new RectF(0.61035156f, 0.0f, 0.61816406f, 0.53125f);;
+			}
 			w += font.width( rect ) + (w > 0 ? font.tracking : 0);
 			h = Math.max( h, font.height( rect ) );
 		}
