@@ -56,6 +56,7 @@ public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTou
 	public static float density = 1;
 	
 	public static String version;
+    public static int versionCode;
 	
 	// Current scene
 	protected Scene scene;
@@ -103,6 +104,11 @@ public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTou
 		} catch (NameNotFoundException e) {
 			version = "???";
 		}
+        try {
+            versionCode = getPackageManager().getPackageInfo( getPackageName(), 0 ).versionCode;
+        } catch (NameNotFoundException e) {
+            versionCode = 0;
+        }
 		
 		setVolumeControlStream( AudioManager.STREAM_MUSIC );
 		
