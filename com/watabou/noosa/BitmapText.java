@@ -38,6 +38,8 @@ public class BitmapText extends Visual {
 	
 	protected boolean dirty = true;
 	
+	protected static char INVALID_CHAR = ' ';
+	
 	public BitmapText() {
 		this( "", null );
 	}
@@ -111,8 +113,7 @@ public class BitmapText extends Visual {
 			RectF rect = font.get( text.charAt( i ) );
 	
 			if (rect == null) {
-				//Corrigido
-				rect = new RectF(0.61035156f, 0.0f, 0.61816406f, 0.53125f);;
+				rect = font.get(INVALID_CHAR);
 			}
 			float w = font.width( rect );
 			float h = font.height( rect );
@@ -169,7 +170,7 @@ public class BitmapText extends Visual {
 	
 			//Corrigido
 			if (rect == null) {
-				rect = new RectF(0.61035156f, 0.0f, 0.61816406f, 0.53125f);;
+				rect = font.get(INVALID_CHAR);
 			}
 			float w = font.width( rect );
 			float h = font.height( rect );
@@ -326,26 +327,32 @@ public class BitmapText extends Visual {
 		}
 		
 		public RectF get( char ch ) {
-			String str;
-			str = (ch+"")
-					.replaceAll("[ãâàáä]",  "a")  
-		            .replaceAll("[êèéë&]",  "e")  
-		            .replaceAll("[îìíï]",   "i")  
-		            .replaceAll("[õôòóö]",  "o")  
-		            .replaceAll("[ûúùü]",   "u")  
-		            .replaceAll("[ÃÂÀÁÄ]",  "A")  
-		            .replaceAll("[ÊÈÉË]",   "E")  
-		            .replaceAll("[ÎÌÍÏ]",   "I")  
-		            .replaceAll("[ÕÔÒÓÖ]",  "O")  
-		            .replaceAll("[ÛÙÚÜ]",   "U")  
+			char tmp = ch;
+			if (ch > 126){
+				String str = (ch+"")
+						.replaceAll("[ãâàáä]",  "a")  
+			            .replaceAll("[êèéë&]",  "e")  
+			            .replaceAll("[îìíï]",   "i")  
+			            .replaceAll("[õôòóö]",  "o")  
+			            .replaceAll("[ûúùü]",   "u")  
+			            .replaceAll("[ÃÂÀÁÄ]",  "A")  
+			            .replaceAll("[ÊÈÉË]",   "E")  
+			            .replaceAll("[ÎÌÍÏ]",   "I")  
+			            .replaceAll("[ÕÔÒÓÖ]",  "O")  
+			            .replaceAll("[ÛÙÚÜ]",   "U")  
 
-		            .replace('ç',   'c')  
-		            .replace('Ç',   'C')  
-		            .replace('ñ',   'n')  
-		            .replace('Ñ',   'N')  
-		            /*.replaceAll("[^a-zA-Z]", " ")*/;  
+			            .replace('ç',   'c')  
+			            .replace('Ç',   'C')  
+			            .replace('ñ',   'n')  
+			            .replace('Ñ',   'N')  
+			            /*.replaceAll("[^a-zA-Z]", " ")*/;
+				//RectF xxx = frames.get( ch );
+				tmp = str.charAt(0);
+			}
 			
-			return super.get( autoUppercase ? Character.toUpperCase(str.charAt(0)) : str.charAt(0) );
+			
+			
+			return super.get( autoUppercase ? Character.toUpperCase(tmp) : tmp );
 		}
 	}
 }
