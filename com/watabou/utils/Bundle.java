@@ -251,10 +251,12 @@ public class Bundle {
 	public void put( String key, Collection<? extends Bundlable> collection ) {
 		JSONArray array = new JSONArray();
 		for (Bundlable object : collection) {
-			Bundle bundle = new Bundle();
-			bundle.put( CLASS_NAME, object.getClass().getName() );
-			object.storeInBundle( bundle );
-			array.put( bundle.data );
+			if (object != null) {
+                Bundle bundle = new Bundle();
+                bundle.put(CLASS_NAME, object.getClass().getName());
+                object.storeInBundle(bundle);
+                array.put(bundle.data);
+            }
 		}
 		try {
 			data.put( key, array );
