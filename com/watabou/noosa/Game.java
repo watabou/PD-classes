@@ -272,8 +272,6 @@ public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTou
 		scene.draw();
 	}
 	
-	// При переключении сцены сбрасываем камеры, уничтожаем текущую сцену,
-	// инициализируем новую сцену и восстанавливаем нормальный масштаб времени
 	protected void switchScene() {
 
 		Camera.reset();
@@ -288,9 +286,6 @@ public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTou
 		Game.timeScale = 1f;
 	}
 	
-	// На апдейте вычисляем сколько времени прошло с предыдущего шага (здесь, возможно,
-	// надо отдельно разбирать случай, когда прошло много времени), обрабатываем все события
-	// тачскрина, обновляем сцены и все камеры
 	protected void update() {
 		Game.elapsed = Game.timeScale * step * 0.001f;
 		
