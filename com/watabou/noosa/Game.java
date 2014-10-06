@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+
 package com.watabou.noosa;
 
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTou
 	
 	// Current scene
 	protected Scene scene;
-	// New scene wea re going to switch to
+	// New scene we are going to switch to
 	protected Scene requestedScene;
 	// true if scene switch is requested
 	protected boolean requestedReset = true;
@@ -149,7 +150,7 @@ public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTou
 		Sample.INSTANCE.reset();
 	}
 
-	@SuppressLint("Recycle")
+	@SuppressLint({ "Recycle", "ClickableViewAccessibility" })
 	@Override
 	public boolean onTouch( View view, MotionEvent event ) {
 		synchronized (motionEvents) {
@@ -224,7 +225,7 @@ public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTou
 		// For premultiplied alpha:
 		// GLES20.glBlendFunc( GL10.GL_ONE, GL10.GL_ONE_MINUS_SRC_ALPHA );
 		GLES20.glBlendFunc( GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA );
-
+		
 		GLES20.glEnable( GL10.GL_SCISSOR_TEST );
 		
 		TextureCache.reload();
@@ -271,6 +272,8 @@ public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTou
 		scene.draw();
 	}
 	
+	// При переключении сцены сбрасываем камеры, уничтожаем текущую сцену,
+	// инициализируем новую сцену и восстанавливаем нормальный масштаб времени
 	protected void switchScene() {
 
 		Camera.reset();
@@ -285,6 +288,9 @@ public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTou
 		Game.timeScale = 1f;
 	}
 	
+	// На апдейте вычисляем сколько времени прошло с предыдущего шага (здесь, возможно,
+	// надо отдельно разбирать случай, когда прошло много времени), обрабатываем все события
+	// тачскрина, обновляем сцены и все камеры
 	protected void update() {
 		Game.elapsed = Game.timeScale * step * 0.001f;
 		

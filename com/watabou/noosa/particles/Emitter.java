@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+
 package com.watabou.noosa.particles;
 
 import javax.microedition.khronos.opengles.GL10;
@@ -40,12 +41,12 @@ public class Emitter extends Group {
 	protected float interval;
 	protected int quantity;
 	
-	protected int count;
-	protected float time;
-	
 	public boolean on = false;
 	
 	public boolean autoKill = true;
+	
+	protected int count;
+	protected float time;
 	
 	protected Factory factory;
 	
