@@ -52,7 +52,7 @@ public class Quad {
 		
 		if (size > indexSize) {
 			
-			// Can be optimized
+			// TODO: Optimize it!
 			
 			indexSize = size;
 			indices = ByteBuffer.

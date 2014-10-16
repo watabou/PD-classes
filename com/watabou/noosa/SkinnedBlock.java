@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+
 package com.watabou.noosa;
 
 import com.watabou.glwrap.Texture;
@@ -83,6 +84,14 @@ public class SkinnedBlock extends Image {
 		offsetX += x;
 		offsetY += y;
 		updateFrame();
+	}
+	
+	public float offsetX() {
+		return offsetX;
+	}
+	
+	public float offsetY() {
+		return offsetY;
 	}
 	
 	public void scale( float x, float y ) {

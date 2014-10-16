@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+
 package com.watabou.noosa;
 
 import java.util.ArrayList;
@@ -47,9 +48,10 @@ public class Camera extends Gizmo {
 	public PointF scroll;
 	public Visual target;
 	
-	private float shakeMagX = 10f;
-	private float shakeMagY = 10f;
-	private float shakeTime = 0f;
+	private float shakeMagX		= 10f;
+	private float shakeMagY		= 10f;
+	private float shakeTime		= 0f;
+	private float shakeDuration	= 1f;
 	
 	protected float shakeX;
 	protected float shakeY;
@@ -155,8 +157,9 @@ public class Camera extends Gizmo {
 		}
 		
 		if ((shakeTime -= Game.elapsed) > 0) {
-			shakeX = Random.Float( -shakeMagX, +shakeMagX );
-			shakeY = Random.Float( -shakeMagY, +shakeMagY );
+			float damping = shakeTime / shakeDuration;
+			shakeX = Random.Float( -shakeMagX, +shakeMagX ) * damping;
+			shakeY = Random.Float( -shakeMagY, +shakeMagY ) * damping;
 		} else {
 			shakeX = 0;
 			shakeY = 0;
@@ -224,6 +227,6 @@ public class Camera extends Gizmo {
 	
 	public void shake( float magnitude, float duration ) {
 		shakeMagX = shakeMagY = magnitude;
-		shakeTime = duration;
+		shakeTime = shakeDuration = duration;
 	}
 }
