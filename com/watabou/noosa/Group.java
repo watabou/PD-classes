@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+
 package com.watabou.noosa;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class Group extends Gizmo {
 	protected ArrayList<Gizmo> members;
 	
 	// Accessing it is a little faster, 
-	// than calling memebers.getSize(
+	// than calling memebers.getSize()
 	public int length;
 	
 	public Group() {
@@ -120,7 +121,6 @@ public class Group extends Gizmo {
 		}
 		
 		if (members.get( 0 ) == null) {
-			// Here we dond't try really hard to find an empty space...
 			members.set( 0, g );
 			g.parent = this;
 			return g;
@@ -136,15 +136,15 @@ public class Group extends Gizmo {
 
 		Gizmo g = getFirstAvailable( c );
 		if (g != null) {
-
+			
 			return g;
 			
 		} else if (c == null) {
-
+			
 			return null;
 			
 		} else {
-
+			
 			try {
 				return add( c.newInstance() );
 			} catch (Exception e) {

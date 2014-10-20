@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+
 package com.watabou.noosa;
 
 import com.watabou.input.Touchscreen;
@@ -64,7 +65,7 @@ public class TouchArea extends Visual implements Signal.Listener<Touchscreen.Tou
 				onTouchDown( touch );
 				
 			} else {
-
+				
 				onTouchUp( touch );
 				
 				if (this.touch == touch) {
@@ -75,7 +76,7 @@ public class TouchArea extends Visual implements Signal.Listener<Touchscreen.Tou
 			}
 			
 		} else {
-
+			
 			if (touch == null && this.touch != null) {
 				onDrag( this.touch );
 			}

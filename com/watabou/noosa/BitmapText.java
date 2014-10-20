@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+
 package com.watabou.noosa;
 
 import java.nio.FloatBuffer;
@@ -34,7 +35,7 @@ public class BitmapText extends Visual {
 	protected float[] vertices = new float[16];
 	protected FloatBuffer quads;
 	
-	protected int realLength;
+	public int realLength;
 	
 	protected boolean dirty = true;
 	
@@ -149,6 +150,10 @@ public class BitmapText extends Visual {
 			if (h > height) {
 				height = h;
 			}
+		}
+		
+		if (length > 0) {
+			width -= font.tracking;
 		}
 		
 		dirty = false;
