@@ -284,7 +284,7 @@ public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTou
 			scene.destroy();
 		}
 		scene = requestedScene;
-		scene.create(instance);
+		scene.create();
 		
 		Game.elapsed = 0f;
 		Game.timeScale = 1f;
