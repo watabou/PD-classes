@@ -213,13 +213,17 @@ public class BitmapText extends Visual {
 	}
 	
 	public static class Font extends TextureFilm {
-		
+		public static final String SPECIAL_CHAR = 
+		"àáâäãèéêëìíîïòóôöõùúûüñçÀÁÂÄÃÈÉÊËÌÍÎÏÒÓÔÖÕÙÚÛÜÑÇº";
+
 		public static final String LATIN_UPPER = 
-			" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		
-		public static final String LATIN_FULL = 
-			" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\u007F";
-		
+		" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+		public static final String LATIN_FULL = LATIN_UPPER +
+		"[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\u007F";
+
+		public static final String ALL_CHARS = LATIN_FULL+SPECIAL_CHAR;
+
 		public SmartTexture texture;
 		
 		public float tracking = 0;
@@ -332,32 +336,33 @@ public class BitmapText extends Visual {
 		}
 		
 		public RectF get( char ch ) {
-			char tmp = ch;
-			if (ch > 126){
+			RectF rec = super.get( autoUppercase ? Character.toUpperCase(ch) : ch );
+
+			//Fix for fonts without accentuation
+			if ((rec == null) && (ch > 126)){
+				char tmp = ch;
 				String str = (ch+"")
-						.replaceAll("[ãâàáä]",  "a")  
-			            .replaceAll("[êèéë&]",  "e")  
+					    .replaceAll("[âàáäã]",  "a")  
+			            .replaceAll("[êèéë]",   "e")  
 			            .replaceAll("[îìíï]",   "i")  
-			            .replaceAll("[õôòóö]",  "o")  
+			            .replaceAll("[ôòóöõ]",  "o")  
 			            .replaceAll("[ûúùü]",   "u")  
-			            .replaceAll("[ÃÂÀÁÄ]",  "A")  
+			            .replaceAll("[ÂÀÁÄÃ]",  "A")  
 			            .replaceAll("[ÊÈÉË]",   "E")  
 			            .replaceAll("[ÎÌÍÏ]",   "I")  
-			            .replaceAll("[ÕÔÒÓÖ]",  "O")  
+			            .replaceAll("[ÔÒÓÖÕ]",  "O")  
 			            .replaceAll("[ÛÙÚÜ]",   "U")  
-
+	
 			            .replace('ç',   'c')  
 			            .replace('Ç',   'C')  
 			            .replace('ñ',   'n')  
-			            .replace('Ñ',   'N')  
-			            /*.replaceAll("[^a-zA-Z]", " ")*/;
-				//RectF xxx = frames.get( ch );
+			            .replace('Ñ',   'N');
+
 				tmp = str.charAt(0);
+				rec = super.get(autoUppercase ? Character.toUpperCase(tmp) : tmp);
 			}
-			
-			
-			
-			return super.get( autoUppercase ? Character.toUpperCase(tmp) : tmp );
+
+			return rec;
 		}
 	}
 }
