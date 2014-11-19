@@ -54,21 +54,21 @@ public class Random {
 		
 		int length = chances.length;
 		
-		float sum = chances[0];
-		for (int i=1; i < length; i++) {
+		float sum = 0;
+		for (int i=0; i < length; i++) {
 			sum += chances[i];
 		}
 		
 		float value = Float( sum );
-		sum = chances[0];
+		sum = 0;
 		for (int i=0; i < length; i++) {
-			if (value < sum) {
+            sum += chances[i];
+            if (value < sum) {
 				return i;
 			}
-			sum += chances[i + 1];
 		}
 		
-		return 0;
+		return -1;
 	}
 	
 	@SuppressWarnings("unchecked")
