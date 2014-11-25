@@ -286,15 +286,15 @@ public class Bundle {
 		}
 	}
 	
-	public static Bundle read( InputStream stream ) {
-		
+	public static Bundle read( InputStream stream ) throws IOException {
+
 		try {
 			BufferedReader reader = new BufferedReader( new InputStreamReader( stream ) );
 			JSONObject json = (JSONObject)new JSONTokener( reader.readLine() ).nextValue();
 			reader.close();
 			
 			return new Bundle( json );
-		} catch (Exception e) {
+		} catch (JSONException e) {
 			return null;
 		}
 	}
