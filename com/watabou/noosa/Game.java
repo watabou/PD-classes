@@ -75,6 +75,7 @@ public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTou
 	
 	public static float timeScale = 1f;
 	public static float elapsed = 0f;
+    public static float timeTotal = 0f;
 	
 	protected GLSurfaceView view;
 	protected SurfaceHolder holder;
@@ -251,6 +252,7 @@ public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTou
 	}
 	
 	public static void switchScene( Class<? extends Scene> c ) {
+        Group.freezeEmitters = false;
 		instance.sceneClass = c;
 		instance.requestedReset = true;
 	}
@@ -290,10 +292,12 @@ public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTou
 		
 		Game.elapsed = 0f;
 		Game.timeScale = 1f;
+        Game.timeTotal = 0f;
 	}
 	
 	protected void update() {
 		Game.elapsed = Game.timeScale * step * 0.001f;
+        Game.timeTotal += Game.elapsed;
 		
 		synchronized (motionEvents) {
 			Touchscreen.processTouchEvents( motionEvents );
