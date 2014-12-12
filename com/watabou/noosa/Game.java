@@ -252,7 +252,6 @@ public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTou
 	}
 	
 	public static void switchScene( Class<? extends Scene> c ) {
-        Group.freezeEmitters = false;
 		instance.sceneClass = c;
 		instance.requestedReset = true;
 	}
