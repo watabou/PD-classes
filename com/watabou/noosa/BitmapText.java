@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2012-2014  Oleg Dolya
  *
  * This program is free software: you can redistribute it and/or modify
@@ -214,15 +214,21 @@ public class BitmapText extends Visual {
 	
 	public static class Font extends TextureFilm {
 		public static final String SPECIAL_CHAR = 
-		"àáâäãèéêëìíîïòóôöõùúûüñçÀÁÂÄÃÈÉÊËÌÍÎÏÒÓÔÖÕÙÚÛÜÑÇº";
+		"Ã Ã¡Ã¢Ã¤Ã£Ã¨Ã©ÃªÃ«Ã¬Ã­Ã®Ã¯Ã²Ã³Ã´Ã¶ÃµÃ¹ÃºÃ»Ã¼Ã±Ã§Ã€ÃÃ‚Ã„ÃƒÃˆÃ‰ÃŠÃ‹ÃŒÃÃÃÃ’Ã“Ã”Ã–Ã•Ã™ÃšÃ›ÃœÃ‘Ã‡Âº";
 
 		public static final String LATIN_UPPER = 
 		" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 		public static final String LATIN_FULL = LATIN_UPPER +
 		"[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\u007F";
-
-		public static final String ALL_CHARS = LATIN_FULL+SPECIAL_CHAR;
+		
+		public static final String CYRILLIC_UPPER =
+		"ĞĞ‘Ğ’Ğ“Ğ”Ğ•ĞĞ–Ğ—Ğ˜Ğ™ĞšĞ›ĞœĞĞĞŸĞ Ğ¡Ğ¢Ğ£Ğ¤Ğ¥Ğ¦Ğ§Ğ¨Ğ©ĞªĞ«Ğ¬Ğ­Ğ®Ğ¯";
+		
+		public static final String CYRILLIC_LOWER =
+		"Ğ°Ğ±Ğ²Ğ³Ğ´ĞµÑ‘Ğ¶Ğ·Ğ¸Ğ¹ĞºĞ»Ğ¼Ğ½Ğ¾Ğ¿Ñ€ÑÑ‚ÑƒÑ„Ñ…Ñ†Ñ‡ÑˆÑ‰ÑŠÑ‹ÑŒÑÑÑ";
+		
+		public static final String ALL_CHARS = LATIN_FULL+SPECIAL_CHAR+CYRILLIC_UPPER+CYRILLIC_LOWER;
 
 		public SmartTexture texture;
 		
@@ -248,7 +254,7 @@ public class BitmapText extends Visual {
 			
 			texture = tx;
 			
-			autoUppercase = chars.equals( LATIN_UPPER );
+			autoUppercase = chars.equals( LATIN_UPPER ) || chars.equals(CYRILLIC_UPPER);
 			
 			int length = chars.length();
 			
@@ -274,7 +280,7 @@ public class BitmapText extends Visual {
 		
 		protected void splitBy( Bitmap bitmap, int height, int color, String chars ) {
 			
-			autoUppercase = chars.equals( LATIN_UPPER );
+			autoUppercase = chars.equals( LATIN_UPPER ) || chars.equals(CYRILLIC_UPPER);
 			int length = chars.length();
 			
 			int width = bitmap.getWidth();
@@ -342,21 +348,21 @@ public class BitmapText extends Visual {
 			if ((rec == null) && (ch > 126)){
 				char tmp = ch;
 				String str = (ch+"")
-					    .replaceAll("[âàáäã]",  "a")  
-			            .replaceAll("[êèéë]",   "e")  
-			            .replaceAll("[îìíï]",   "i")  
-			            .replaceAll("[ôòóöõ]",  "o")  
-			            .replaceAll("[ûúùü]",   "u")  
-			            .replaceAll("[ÂÀÁÄÃ]",  "A")  
-			            .replaceAll("[ÊÈÉË]",   "E")  
-			            .replaceAll("[ÎÌÍÏ]",   "I")  
-			            .replaceAll("[ÔÒÓÖÕ]",  "O")  
-			            .replaceAll("[ÛÙÚÜ]",   "U")  
+					    .replaceAll("[ï¿½ï¿½ï¿½ï¿½ï¿½]",  "a")  
+			            .replaceAll("[ï¿½ï¿½ï¿½ï¿½]",   "e")  
+			            .replaceAll("[ï¿½ï¿½ï¿½ï¿½]",   "i")  
+			            .replaceAll("[ï¿½ï¿½ï¿½ï¿½ï¿½]",  "o")  
+			            .replaceAll("[ï¿½ï¿½ï¿½ï¿½]",   "u")  
+			            .replaceAll("[ï¿½ï¿½ï¿½ï¿½ï¿½]",  "A")  
+			            .replaceAll("[ï¿½ï¿½ï¿½ï¿½]",   "E")  
+			            .replaceAll("[ï¿½ï¿½ï¿½ï¿½]",   "I")  
+			            .replaceAll("[ï¿½ï¿½ï¿½ï¿½ï¿½]",  "O")  
+			            .replaceAll("[ï¿½ï¿½ï¿½ï¿½]",   "U")  
 	
-			            .replace('ç',   'c')  
-			            .replace('Ç',   'C')  
-			            .replace('ñ',   'n')  
-			            .replace('Ñ',   'N');
+			            .replace('ï¿½',   'c')  
+			            .replace('ï¿½',   'C')  
+			            .replace('ï¿½',   'n')  
+			            .replace('ï¿½',   'N');
 
 				tmp = str.charAt(0);
 				rec = super.get(autoUppercase ? Character.toUpperCase(tmp) : tmp);
