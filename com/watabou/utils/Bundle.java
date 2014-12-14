@@ -96,8 +96,7 @@ public class Bundle {
 			} else {
 				return null;
 			}
-		} catch (Exception e) {
-			e = null;
+		} catch (ClassNotFoundException|InstantiationException|IllegalAccessException e ) {
 			return null;
 		}	
 	}
