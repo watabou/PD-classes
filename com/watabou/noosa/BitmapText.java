@@ -348,21 +348,21 @@ public class BitmapText extends Visual {
 			if ((rec == null) && (ch > 126)){
 				char tmp = ch;
 				String str = (ch+"")
-					    .replaceAll("[�����]",  "a")  
-			            .replaceAll("[����]",   "e")  
-			            .replaceAll("[����]",   "i")  
-			            .replaceAll("[�����]",  "o")  
-			            .replaceAll("[����]",   "u")  
-			            .replaceAll("[�����]",  "A")  
-			            .replaceAll("[����]",   "E")  
-			            .replaceAll("[����]",   "I")  
-			            .replaceAll("[�����]",  "O")  
-			            .replaceAll("[����]",   "U")  
+					    .replaceAll("[àáâäã]",  "a")  
+			            .replaceAll("[èéêë]",   "e")  
+			            .replaceAll("[ìíîï]",   "i")  
+			            .replaceAll("[òóôöõ]",  "o")  
+			            .replaceAll("[ùúûü]",   "u")  
+			            .replaceAll("[ÀÁÂÄÃ]",  "A")  
+			            .replaceAll("[ÈÉÊË]",   "E")  
+			            .replaceAll("[ÌÍÎÏ]",   "I")  
+			            .replaceAll("[ÒÓÔÖÕ]",  "O")  
+			            .replaceAll("[ÙÚÛÜ]",   "U")  
 	
-			            .replace('�',   'c')  
-			            .replace('�',   'C')  
-			            .replace('�',   'n')  
-			            .replace('�',   'N');
+			            .replace('ç',   'c')  
+			            .replace('Ç',   'C')  
+			            .replace('ñ',   'n')  
+			            .replace('Ñ',   'N');
 
 				tmp = str.charAt(0);
 				rec = super.get(autoUppercase ? Character.toUpperCase(tmp) : tmp);
