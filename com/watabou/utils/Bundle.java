@@ -82,6 +82,7 @@ public class Bundle {
 	}
 	
 	private Bundlable get() {
+		if (data == null) return null;
 		try {
 			String clName = getString( CLASS_NAME );
 			if (aliases.containsKey( clName )) {
