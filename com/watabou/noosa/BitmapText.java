@@ -26,6 +26,7 @@ import com.watabou.glwrap.Quad;
 
 import android.graphics.Bitmap;
 import android.graphics.RectF;
+//import android.util.Log;
 
 public class BitmapText extends Visual {
 
@@ -254,7 +255,7 @@ public class BitmapText extends Visual {
 			
 			texture = tx;
 			
-			autoUppercase = chars.equals( LATIN_UPPER ) || chars.equals(CYRILLIC_UPPER);
+			autoUppercase = chars.equals( LATIN_UPPER );
 			
 			int length = chars.length();
 			
@@ -278,53 +279,118 @@ public class BitmapText extends Visual {
 			lineHeight = baseLine = height;
 		}
 		
-		protected void splitBy( Bitmap bitmap, int height, int color, String chars ) {
+		private int findNextEmptyLine(Bitmap bitmap, int startFrom, int color){
+			int width  = bitmap.getWidth();
+			int height = bitmap.getHeight();
 			
-			autoUppercase = chars.equals( LATIN_UPPER ) || chars.equals(CYRILLIC_UPPER);
-			int length = chars.length();
+			int nextEmptyLine = startFrom;
 			
-			int width = bitmap.getWidth();
-			float vHeight = (float)height / bitmap.getHeight();
-			
-			int pos;
-			
-		spaceMeasuring:
-			for (pos=0; pos <  width; pos++) {
-				for (int j=0; j < height; j++) {
-					if (bitmap.getPixel( pos, j ) != color) {
-						break spaceMeasuring;
+			for(nextEmptyLine = startFrom; nextEmptyLine < height; ++nextEmptyLine){
+				boolean lineEmpty = true;
+				for(int i = 0;i<width; ++i){
+					lineEmpty = (bitmap.getPixel (i, nextEmptyLine ) == color) && lineEmpty;
+					if(!lineEmpty){
+						break;
 					}
 				}
-			}
-			add( ' ', new RectF( 0, 0, (float)pos / width, vHeight ) );
-			
-			for (int i=0; i < length; i++) {
-				
-				char ch = chars.charAt( i );
-				if (ch == ' ') {
-					continue;
-				} else {
-					
-					boolean found;
-					int separator = pos;
-					
-					do {
-						if (++separator >= width) {
-							break;
-						}
-						found = true;
-						for (int j=0; j < height; j++) {
-							if (bitmap.getPixel( separator, j ) != color) {
-								found = false;
-								break;
-							}
-						}
-					} while (!found);
-					
-					add( ch, new RectF( (float)pos / width, 0, (float)separator / width, vHeight ) );
-					pos = separator + 1;
+				if(lineEmpty){
+					break;
 				}
 			}
+			return nextEmptyLine;
+		}
+		
+		private boolean isColumnEmpty(Bitmap bitmap, int x, int sy, int ey, int color){
+			for(int j = sy; j < ey; ++j){
+				if(bitmap.getPixel(x, j) != color){
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		private int findCharacterBorder(Bitmap bitmap, int sx, int sy, int ey, int color){
+			int width = bitmap.getWidth();
+			
+			int lastCharColumn;
+			
+			for(lastCharColumn = sx; lastCharColumn < width; ++lastCharColumn){
+				if(isColumnEmpty(bitmap,lastCharColumn, sy, ey, color)){
+					break;
+				}
+			}
+			return lastCharColumn-1;			
+			
+		}
+		
+		private int findNextCharColumn(Bitmap bitmap, int sx, int sy, int ey, int color){
+			int width = bitmap.getWidth();
+			
+			int nextEmptyColumn;
+			// find first empty column
+			for(nextEmptyColumn = sx; nextEmptyColumn < width; ++nextEmptyColumn){
+				if(isColumnEmpty(bitmap,nextEmptyColumn, sy, ey, color)){
+					break;
+				}
+			}
+			
+			int nextCharColumn;
+			
+			for(nextCharColumn = nextEmptyColumn; nextCharColumn < width; ++nextCharColumn){
+				if(!isColumnEmpty(bitmap,nextCharColumn, sy, ey, color)){
+					break;
+				}
+			}
+			return nextCharColumn-1;
+		}
+		
+		
+		protected void splitBy( Bitmap bitmap, int height, int color, String chars ) {
+			
+			autoUppercase = chars.equals( LATIN_UPPER );
+			int length    = chars.length();
+			
+			int b_width  = bitmap.getWidth();
+			int b_height = bitmap.getHeight();
+			
+			int charsProcessed = 0;
+			int lineTop        = 0;
+			int lineBottom     = 0;
+			
+			while(lineBottom<b_height){
+				lineBottom = findNextEmptyLine(bitmap, lineTop, color);
+				
+				int charColumn = 0;
+				int nextColumn = 0;
+				int charBorder = 0;
+				
+				while (nextColumn < b_width - 1){
+					nextColumn = findNextCharColumn(bitmap,charColumn+1,lineTop,lineBottom,color);
+
+					charBorder = nextColumn;
+					if(nextColumn == b_width-1){
+						charBorder =  findCharacterBorder(bitmap, charColumn+1, lineTop, lineBottom, color);
+					}
+					
+					if(charsProcessed == length){
+						break;
+					}
+
+					//Log.i("chars processed: %C %d %d - %d %d",chars.charAt(charsProcessed) , charColumn+1, lineTop, charBorder-1, lineBottom );
+
+					add( chars.charAt(charsProcessed), 
+						new RectF( (float)(charColumn)/b_width, 
+								   (float)lineTop/b_height, 
+								   (float)(charBorder)/b_width, 
+								   (float)lineBottom/b_height ) );
+					++charsProcessed;
+					charColumn = nextColumn;
+				}
+
+				lineTop = lineBottom+1;
+			}
+			
+			//Log.i("chars processed: %s", charsProcessed);
 			
 			lineHeight = baseLine = height( frames.get( chars.charAt( 0 ) ) );
 		}
@@ -358,10 +424,9 @@ public class BitmapText extends Visual {
 			            .replaceAll("[ÌÍÎÏ]",   "I")  
 			            .replaceAll("[ÒÓÔÖÕ]",  "O")  
 			            .replaceAll("[ÙÚÛÜ]",   "U")  
-	
-			            .replace('ç',   'c')  
-			            .replace('Ç',   'C')  
-			            .replace('ñ',   'n')  
+			            .replace('ç',   'c')
+			            .replace('Ç',   'C')
+			            .replace('ñ',   'n')
 			            .replace('Ñ',   'N');
 
 				tmp = str.charAt(0);
