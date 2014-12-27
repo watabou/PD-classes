@@ -26,7 +26,6 @@ import com.watabou.glwrap.Quad;
 
 import android.graphics.Bitmap;
 import android.graphics.RectF;
-//import android.util.Log;
 
 public class BitmapText extends Visual {
 
@@ -240,6 +239,8 @@ public class BitmapText extends Visual {
 		
 		public float lineHeight;
 		
+		private boolean endOfRow = false;
+		
 		protected Font( SmartTexture tx ) {
 			super( tx );
 			
@@ -309,20 +310,6 @@ public class BitmapText extends Visual {
 			return true;
 		}
 		
-		private int findCharacterBorder(Bitmap bitmap, int sx, int sy, int ey, int color){
-			int width = bitmap.getWidth();
-			
-			int lastCharColumn;
-			
-			for(lastCharColumn = sx; lastCharColumn < width; ++lastCharColumn){
-				if(isColumnEmpty(bitmap,lastCharColumn, sy, ey, color)){
-					break;
-				}
-			}
-			return lastCharColumn-1;			
-			
-		}
-		
 		private int findNextCharColumn(Bitmap bitmap, int sx, int sy, int ey, int color){
 			int width = bitmap.getWidth();
 			
@@ -341,6 +328,12 @@ public class BitmapText extends Visual {
 					break;
 				}
 			}
+			
+			if(nextCharColumn == width){
+				endOfRow = true;
+				return nextEmptyColumn - 1;
+			}
+			
 			return nextCharColumn-1;
 		}
 		
@@ -361,22 +354,15 @@ public class BitmapText extends Visual {
 				lineBottom = findNextEmptyLine(bitmap, lineTop, color);
 				
 				int charColumn = 0;
-				int nextColumn = 0;
 				int charBorder = 0;
 				
-				while (nextColumn < b_width - 1){
-					nextColumn = findNextCharColumn(bitmap,charColumn+1,lineTop,lineBottom,color);
+				endOfRow = false;
+				while (! endOfRow){
+					charBorder = findNextCharColumn(bitmap,charColumn+1,lineTop,lineBottom,color);
 
-					charBorder = nextColumn;
-					if(nextColumn == b_width-1){
-						charBorder =  findCharacterBorder(bitmap, charColumn+1, lineTop, lineBottom, color);
-					}
-					
 					if(charsProcessed == length){
 						break;
 					}
-
-					//Log.i("chars processed: %C %d %d - %d %d",chars.charAt(charsProcessed) , charColumn+1, lineTop, charBorder-1, lineBottom );
 
 					add( chars.charAt(charsProcessed), 
 						new RectF( (float)(charColumn)/b_width, 
@@ -384,13 +370,11 @@ public class BitmapText extends Visual {
 								   (float)(charBorder)/b_width, 
 								   (float)lineBottom/b_height ) );
 					++charsProcessed;
-					charColumn = nextColumn;
+					charColumn = charBorder;
 				}
 
 				lineTop = lineBottom+1;
 			}
-			
-			//Log.i("chars processed: %s", charsProcessed);
 			
 			lineHeight = baseLine = height( frames.get( chars.charAt( 0 ) ) );
 		}
@@ -414,16 +398,16 @@ public class BitmapText extends Visual {
 			if ((rec == null) && (ch > 126)){
 				char tmp = ch;
 				String str = (ch+"")
-					    .replaceAll("[àáâäã]",  "a")  
-			            .replaceAll("[èéêë]",   "e")  
-			            .replaceAll("[ìíîï]",   "i")  
-			            .replaceAll("[òóôöõ]",  "o")  
-			            .replaceAll("[ùúûü]",   "u")  
-			            .replaceAll("[ÀÁÂÄÃ]",  "A")  
-			            .replaceAll("[ÈÉÊË]",   "E")  
-			            .replaceAll("[ÌÍÎÏ]",   "I")  
-			            .replaceAll("[ÒÓÔÖÕ]",  "O")  
-			            .replaceAll("[ÙÚÛÜ]",   "U")  
+					    .replaceAll("[àáâäã]",  "a")
+			            .replaceAll("[èéêë]",   "e")
+			            .replaceAll("[ìíîï]",   "i")
+			            .replaceAll("[òóôöõ]",  "o")
+			            .replaceAll("[ùúûü]",   "u")
+			            .replaceAll("[ÀÁÂÄÃ]",  "A")
+			            .replaceAll("[ÈÉÊË]",   "E")
+			            .replaceAll("[ÌÍÎÏ]",   "I")
+			            .replaceAll("[ÒÓÔÖÕ]",  "O")
+			            .replaceAll("[ÙÚÛÜ]",   "U")
 			            .replace('ç',   'c')
 			            .replace('Ç',   'C')
 			            .replace('ñ',   'n')
