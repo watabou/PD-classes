@@ -1,4 +1,4 @@
-/*
+Ôªø/*
  * Copyright (C) 2012-2014  Oleg Dolya
  *
  * This program is free software: you can redistribute it and/or modify
@@ -214,15 +214,21 @@ public class BitmapText extends Visual {
 	
 	public static class Font extends TextureFilm {
 		public static final String SPECIAL_CHAR = 
-		"‡·‚‰„ËÈÍÎÏÌÓÔÚÛÙˆı˘˙˚¸ÒÁ¿¡¬ƒ√»… ÀÃÕŒœ“”‘÷’Ÿ⁄€‹—«∫";
+		"√†√°√¢√§√£√®√©√™√´√¨√≠√Æ√Ø√≤√≥√¥√∂√µ√π√∫√ª√º√±√ß√Ä√Å√Ç√Ñ√É√à√â√ä√ã√å√ç√é√è√í√ì√î√ñ√ï√ô√ö√õ√ú√ë√á¬∫";
 
 		public static final String LATIN_UPPER = 
 		" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 		public static final String LATIN_FULL = LATIN_UPPER +
 		"[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\u007F";
-
-		public static final String ALL_CHARS = LATIN_FULL+SPECIAL_CHAR;
+		
+		public static final String CYRILLIC_UPPER =
+		"–ê–ë–í–ì–î–ï–Å–ñ–ó–ò–ô–ö–õ–ú–ù–û–ü–†–°–¢–£–§–•–¶–ß–®–©–™–´–¨–≠–Æ–Ø";
+		
+		public static final String CYRILLIC_LOWER =
+		"–∞–±–≤–≥–¥–µ—ë–∂–∑–∏–π–∫–ª–º–Ω–æ–ø—Ä—Å—Ç—É—Ñ—Ö—Ü—á—à—â—ä—ã—å—ç—é—è";
+		
+		public static final String ALL_CHARS = LATIN_FULL+SPECIAL_CHAR+CYRILLIC_UPPER+CYRILLIC_LOWER;
 
 		public SmartTexture texture;
 		
@@ -232,6 +238,8 @@ public class BitmapText extends Visual {
 		public boolean autoUppercase = false;
 		
 		public float lineHeight;
+		
+		private boolean endOfRow = false;
 		
 		protected Font( SmartTexture tx ) {
 			super( tx );
@@ -272,52 +280,100 @@ public class BitmapText extends Visual {
 			lineHeight = baseLine = height;
 		}
 		
+		private int findNextEmptyLine(Bitmap bitmap, int startFrom, int color){
+			int width  = bitmap.getWidth();
+			int height = bitmap.getHeight();
+			
+			int nextEmptyLine = startFrom;
+			
+			for(nextEmptyLine = startFrom; nextEmptyLine < height; ++nextEmptyLine){
+				boolean lineEmpty = true;
+				for(int i = 0;i<width; ++i){
+					lineEmpty = (bitmap.getPixel (i, nextEmptyLine ) == color) && lineEmpty;
+					if(!lineEmpty){
+						break;
+					}
+				}
+				if(lineEmpty){
+					break;
+				}
+			}
+			return nextEmptyLine;
+		}
+		
+		private boolean isColumnEmpty(Bitmap bitmap, int x, int sy, int ey, int color){
+			for(int j = sy; j < ey; ++j){
+				if(bitmap.getPixel(x, j) != color){
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		private int findNextCharColumn(Bitmap bitmap, int sx, int sy, int ey, int color){
+			int width = bitmap.getWidth();
+			
+			int nextEmptyColumn;
+			// find first empty column
+			for(nextEmptyColumn = sx; nextEmptyColumn < width; ++nextEmptyColumn){
+				if(isColumnEmpty(bitmap,nextEmptyColumn, sy, ey, color)){
+					break;
+				}
+			}
+			
+			int nextCharColumn;
+			
+			for(nextCharColumn = nextEmptyColumn; nextCharColumn < width; ++nextCharColumn){
+				if(!isColumnEmpty(bitmap,nextCharColumn, sy, ey, color)){
+					break;
+				}
+			}
+			
+			if(nextCharColumn == width){
+				endOfRow = true;
+				return nextEmptyColumn - 1;
+			}
+			
+			return nextCharColumn-1;
+		}
+		
+		
 		protected void splitBy( Bitmap bitmap, int height, int color, String chars ) {
 			
 			autoUppercase = chars.equals( LATIN_UPPER );
-			int length = chars.length();
+			int length    = chars.length();
 			
-			int width = bitmap.getWidth();
-			float vHeight = (float)height / bitmap.getHeight();
+			int b_width  = bitmap.getWidth();
+			int b_height = bitmap.getHeight();
 			
-			int pos;
+			int charsProcessed = 0;
+			int lineTop        = 0;
+			int lineBottom     = 0;
 			
-		spaceMeasuring:
-			for (pos=0; pos <  width; pos++) {
-				for (int j=0; j < height; j++) {
-					if (bitmap.getPixel( pos, j ) != color) {
-						break spaceMeasuring;
-					}
-				}
-			}
-			add( ' ', new RectF( 0, 0, (float)pos / width, vHeight ) );
-			
-			for (int i=0; i < length; i++) {
+			while(lineBottom<b_height){
+				lineBottom = findNextEmptyLine(bitmap, lineTop, color);
 				
-				char ch = chars.charAt( i );
-				if (ch == ' ') {
-					continue;
-				} else {
-					
-					boolean found;
-					int separator = pos;
-					
-					do {
-						if (++separator >= width) {
-							break;
-						}
-						found = true;
-						for (int j=0; j < height; j++) {
-							if (bitmap.getPixel( separator, j ) != color) {
-								found = false;
-								break;
-							}
-						}
-					} while (!found);
-					
-					add( ch, new RectF( (float)pos / width, 0, (float)separator / width, vHeight ) );
-					pos = separator + 1;
+				int charColumn = 0;
+				int charBorder = 0;
+				
+				endOfRow = false;
+				while (! endOfRow){
+					charBorder = findNextCharColumn(bitmap,charColumn+1,lineTop,lineBottom,color);
+
+					if(charsProcessed == length){
+						break;
+					}
+
+					add( chars.charAt(charsProcessed), 
+						new RectF( (float)(charColumn)/b_width, 
+								   (float)lineTop/b_height, 
+								   (float)(charBorder)/b_width, 
+								   (float)lineBottom/b_height ) );
+					++charsProcessed;
+					charColumn = charBorder;
 				}
+
+				lineTop = lineBottom+1;
 			}
 			
 			lineHeight = baseLine = height( frames.get( chars.charAt( 0 ) ) );
@@ -342,21 +398,20 @@ public class BitmapText extends Visual {
 			if ((rec == null) && (ch > 126)){
 				char tmp = ch;
 				String str = (ch+"")
-					    .replaceAll("[‚‡·‰„]",  "a")  
-			            .replaceAll("[ÍËÈÎ]",   "e")  
-			            .replaceAll("[ÓÏÌÔ]",   "i")  
-			            .replaceAll("[ÙÚÛˆı]",  "o")  
-			            .replaceAll("[˚˙˘¸]",   "u")  
-			            .replaceAll("[¬¿¡ƒ√]",  "A")  
-			            .replaceAll("[ »…À]",   "E")  
-			            .replaceAll("[ŒÃÕœ]",   "I")  
-			            .replaceAll("[‘“”÷’]",  "O")  
-			            .replaceAll("[€Ÿ⁄‹]",   "U")  
-	
-			            .replace('Á',   'c')  
-			            .replace('«',   'C')  
-			            .replace('Ò',   'n')  
-			            .replace('—',   'N');
+					    .replaceAll("[√†√°√¢√§√£]",  "a")
+			            .replaceAll("[√®√©√™√´]",   "e")
+			            .replaceAll("[√¨√≠√Æ√Ø]",   "i")
+			            .replaceAll("[√≤√≥√¥√∂√µ]",  "o")
+			            .replaceAll("[√π√∫√ª√º]",   "u")
+			            .replaceAll("[√Ä√Å√Ç√Ñ√É]",  "A")
+			            .replaceAll("[√à√â√ä√ã]",   "E")
+			            .replaceAll("[√å√ç√é√è]",   "I")
+			            .replaceAll("[√í√ì√î√ñ√ï]",  "O")
+			            .replaceAll("[√ô√ö√õ√ú]",   "U")
+			            .replace('√ß',   'c')
+			            .replace('√á',   'C')
+			            .replace('√±',   'n')
+			            .replace('√ë',   'N');
 
 				tmp = str.charAt(0);
 				rec = super.get(autoUppercase ? Character.toUpperCase(tmp) : tmp);
