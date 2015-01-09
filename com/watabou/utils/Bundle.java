@@ -294,8 +294,8 @@ public class Bundle {
 			reader.close();
 			
 			return new Bundle( json );
-		} catch (JSONException e) {
-			return null;
+		} catch (Exception e) {
+			throw new IOException();
 		}
 	}
 	
