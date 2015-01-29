@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2014  Oleg Dolya
+ * Copyright (C) 2012-2015 Oleg Dolya
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,6 +101,7 @@ public class Random {
 		return (int)(Math.random() * collection.size());
 	}
 	
+	@SafeVarargs
 	public static<T> T oneOf( T... array ) {
 		return array[(int)(Math.random() * array.length)];
 	}

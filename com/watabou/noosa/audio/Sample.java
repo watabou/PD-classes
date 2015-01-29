@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2014  Oleg Dolya
+ * Copyright (C) 2012-2015 Oleg Dolya
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package com.watabou.noosa.audio;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 import com.watabou.noosa.Game;
 
@@ -65,9 +66,11 @@ public enum Sample implements SoundPool.OnLoadCompleteListener {
 		}
 	}
 	
+	private LinkedList<String> loadingQueue = new LinkedList<String>();
+	
 	public void load( String... assets ) {
 		
-		AssetManager manager = Game.instance.getAssets();
+	/*	AssetManager manager = Game.instance.getAssets();
 		
 		for (int i=0; i < assets.length; i++) {
 			
@@ -83,6 +86,36 @@ public enum Sample implements SoundPool.OnLoadCompleteListener {
 				}
 			}
 			
+		}*/
+		for (String asset : assets) {
+			loadingQueue.add( asset );
+		}
+		loadNext();
+	}
+	
+	private void loadNext() {
+		final String asset = loadingQueue.poll();
+		if (asset != null) {
+			if (!ids.containsKey( asset )) {
+				try {
+					pool.setOnLoadCompleteListener( new SoundPool.OnLoadCompleteListener() {
+						@Override
+						public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+							loadNext();
+						}
+					} );
+					
+					AssetManager manager = Game.instance.getAssets();
+					AssetFileDescriptor fd = manager.openFd( asset );
+					int streamID = pool.load( fd, 1 ) ;
+					ids.put( asset, streamID );
+					fd.close();
+				} catch (IOException e) {
+					loadNext();
+				}
+			} else {
+				loadNext();
+			}
 		}
 	}
 	

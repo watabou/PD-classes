@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2014  Oleg Dolya
+ * Copyright (C) 2012-2015 Oleg Dolya
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import android.util.FloatMath;
 public class PointF {
 	
 	public static final float PI	= 3.1415926f;
+	public static final float PI2	= PI * 2;
 	public static final float G2R	= PI / 180;
 	
 	public float x;
