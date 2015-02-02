@@ -100,7 +100,8 @@ public class Random {
 	public static int index( Collection<?> collection ) {
 		return (int)(Math.random() * collection.size());
 	}
-	
+
+	@SafeVarargs
 	public static<T> T oneOf( T... array ) {
 		return array[(int)(Math.random() * array.length)];
 	}
