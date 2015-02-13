@@ -121,7 +121,7 @@ public class NoosaScript extends Script {
 		if (camera == null) {
 			camera = Camera.main;
 		}
-		if (camera != lastCamera) {
+		if (camera != lastCamera && camera.matrix != null) {
 			lastCamera = camera;
 			uCamera.valueM4( camera.matrix );
 			
