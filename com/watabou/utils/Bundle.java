@@ -27,6 +27,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -55,6 +56,18 @@ public class Bundle {
 	
 	public boolean isNull() {
 		return data == null;
+	}
+	
+	public ArrayList<String> fields() {
+		ArrayList<String> result = new ArrayList<String>();
+		
+		@SuppressWarnings("unchecked")
+		Iterator<String> iterator = data.keys();
+		while (iterator.hasNext()) {
+			result.add( iterator.next() );
+		}
+		
+		return result;
 	}
 	
 	public boolean contains( String key ) {
@@ -288,7 +301,15 @@ public class Bundle {
 		
 		try {
 			BufferedReader reader = new BufferedReader( new InputStreamReader( stream ) );
-			JSONObject json = (JSONObject)new JSONTokener( reader.readLine() ).nextValue();
+			
+			StringBuilder all = new StringBuilder();
+			String line = reader.readLine();
+			while (line != null) {
+				all.append( line );
+				line = reader.readLine();
+			}
+			
+			JSONObject json = (JSONObject)new JSONTokener( all.toString() ).nextValue();
 			reader.close();
 			
 			return new Bundle( json );
