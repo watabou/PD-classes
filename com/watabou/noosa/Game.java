@@ -18,6 +18,7 @@
 package com.watabou.noosa;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -33,8 +34,12 @@ import com.watabou.utils.SystemTime;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.ContextWrapper;
+import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Configuration;
 import android.media.AudioManager;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -49,7 +54,6 @@ import android.view.View;
 public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTouchListener {
 
 	public static Game instance;
-	private static Context context;
 	
 	// Actual size of the screen
 	public static int width;
@@ -94,9 +98,6 @@ public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTou
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
 		super.onCreate( savedInstanceState );
-		
-		//Criado para manter o contexto e poder fazer a busca dos resources
-		context = getApplicationContext();
 		
 		BitmapCache.context = TextureCache.context = instance = this;
 		
@@ -311,10 +312,36 @@ public class Game extends Activity implements GLSurfaceView.Renderer, View.OnTou
 		((Vibrator)instance.getSystemService( VIBRATOR_SERVICE )).vibrate( milliseconds );
 	}
 	
-	public static String getVar(int id){
-		return context.getResources().getString(id);
+	public void useLocale(String lang) {
+		if (lang.equals("def")){
+			return;
+		}
+		String lan = lang.split("_")[0];
+		String reg = (lang.split("_").length > 1)? lang.split("_")[1]: "";
+		
+		Locale locale = new Locale(lan, reg);
+		Configuration config = getBaseContext().getResources().getConfiguration();
+		config.locale = locale;
+		getBaseContext().getResources().updateConfiguration(config, getBaseContext().getResources().getDisplayMetrics());
 	}
+	
+	public void doRestart() {
+		Intent i = instance.getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
+		i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+		
+		int piId = 123456;
+		PendingIntent pi = PendingIntent.getActivity(getBaseContext(), piId, i, PendingIntent.FLAG_CANCEL_CURRENT);
+		AlarmManager mgr = (AlarmManager) getBaseContext().getSystemService(ContextWrapper.ALARM_SERVICE);
+		mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, pi);
+		
+		System.exit(0);
+	}
+	
+	public static String getVar(int id){
+		return instance.getApplicationContext().getResources().getString(id);
+	}
+	
 	public static String[] getVars(int id){
-		return context.getResources().getStringArray(id);
+		return instance.getApplicationContext().getResources().getStringArray(id);
 	}
 }
