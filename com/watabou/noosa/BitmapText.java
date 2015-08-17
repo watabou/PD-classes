@@ -217,7 +217,7 @@ public class BitmapText extends Visual {
 		"àáâäãèéêëìíîïòóôöõùúûüñçÀÁÂÄÃÈÉÊËÌÍÎÏÒÓÔÖÕÙÚÛÜÑÇº";
 
 		public static final String LATIN_UPPER = 
-		" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		" !¡\"#$%&'()*+,-./0123456789:;<=>?¿@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 		public static final String LATIN_FULL = LATIN_UPPER +
 		"[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\u007F";
