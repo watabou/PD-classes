@@ -213,8 +213,8 @@ public class BitmapText extends Visual {
 	}
 	
 	public static class Font extends TextureFilm {
-		public static final String SPECIAL_CHAR = 
-		"àáâäãèéêëìíîïòóôöõùúûüñçÀÁÂÄÃÈÉÊËÌÍÎÏÒÓÔÖÕÙÚÛÜÑÇº";
+		public static final String SPECIAL_CHAR =
+		"àáâäãąèéêëęìíîïòóôöõùúûüñńçćłśźżÀÁÂÄÃĄÈÉÊËĘÌÍÎÏÒÓÔÖÕÙÚÛÜÑŃÇĆŁŚŹŻº";
 
 		public static final String LATIN_UPPER = 
 		" !¡\"#$%&'()*+,-./0123456789:;<=>?¿@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -398,20 +398,27 @@ public class BitmapText extends Visual {
 			if ((rec == null) && (ch > 126)){
 				char tmp = ch;
 				String str = (ch+"")
-					    .replaceAll("[àáâäã]",  "a")
-			            .replaceAll("[èéêë]",   "e")
-			            .replaceAll("[ìíîï]",   "i")
-			            .replaceAll("[òóôöõ]",  "o")
-			            .replaceAll("[ùúûü]",   "u")
-			            .replaceAll("[ÀÁÂÄÃ]",  "A")
-			            .replaceAll("[ÈÉÊË]",   "E")
-			            .replaceAll("[ÌÍÎÏ]",   "I")
-			            .replaceAll("[ÒÓÔÖÕ]",  "O")
-			            .replaceAll("[ÙÚÛÜ]",   "U")
-			            .replace('ç',   'c')
-			            .replace('Ç',   'C')
-			            .replace('ñ',   'n')
-			            .replace('Ñ',   'N');
+						.replaceAll("[àáâäãą]",  "a")
+						.replaceAll("[èéêëę]",   "e")
+						.replaceAll("[ìíîï]",    "i")
+						.replaceAll("[òóôöõ]",   "o")
+						.replaceAll("[ùúûü]",    "u")
+						.replaceAll("[ÀÁÂÄÃĄ]",  "A")
+						.replaceAll("[ÈÉÊËĘ]",   "E")
+						.replaceAll("[ÌÍÎÏ]",    "I")
+						.replaceAll("[ÒÓÔÖÕ]",   "O")
+						.replaceAll("[ÙÚÛÜ]",    "U")
+						.replaceAll("[çć]",      "c")
+						.replaceAll("[ÇĆ]",      "C")
+						.replaceAll("[ñń]",      "n")
+						.replaceAll("[ÑŃ]",      "N")
+						.replaceAll("[źż]",      "z")
+						.replaceAll("[ŹŻ]",      "Z")
+						.replace(   'ł',         'l')
+						.replace(   'Ł',         'L')
+						.replace(   'ś',         's')
+						.replace(   'Ś',         'S')
+						;
 
 				tmp = str.charAt(0);
 				rec = super.get(autoUppercase ? Character.toUpperCase(tmp) : tmp);
