@@ -214,7 +214,10 @@ public class BitmapText extends Visual {
 	
 	public static class Font extends TextureFilm {
 		public static final String SPECIAL_CHAR =
-		"àáâäãąèéêëęìíîïòóôöõùúûüñńçćłśźżÀÁÂÄÃĄÈÉÊËĘÌÍÎÏÒÓÔÖÕÙÚÛÜÑŃÇĆŁŚŹŻº";
+		"àáâäãąèéêëęìíîïòóôöõùúûüñńçćłśźż";
+		
+		public static final String SPECIAL_CHAR_UPPER =
+		"ÀÁÂÄÃĄÈÉÊËĘÌÍÎÏÒÓÔÖÕÙÚÛÜÑŃÇĆŁŚŹŻº";
 
 		public static final String LATIN_UPPER = 
 		" !¡\"#$%&'()*+,-./0123456789:;<=>?¿@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -228,7 +231,7 @@ public class BitmapText extends Visual {
 		public static final String CYRILLIC_LOWER =
 		"абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
 		
-		public static final String ALL_CHARS = LATIN_FULL+SPECIAL_CHAR+CYRILLIC_UPPER+CYRILLIC_LOWER;
+		public static final String ALL_CHARS = LATIN_FULL+SPECIAL_CHAR+SPECIAL_CHAR_UPPER+CYRILLIC_UPPER+CYRILLIC_LOWER;
 
 		public SmartTexture texture;
 		
@@ -256,7 +259,7 @@ public class BitmapText extends Visual {
 			
 			texture = tx;
 			
-			autoUppercase = chars.equals( LATIN_UPPER );
+			autoUppercase = chars.equals( LATIN_UPPER+SPECIAL_CHAR_UPPER+CYRILLIC_UPPER );
 			
 			int length = chars.length();
 			
@@ -351,6 +354,9 @@ public class BitmapText extends Visual {
 			int lineBottom     = 0;
 			
 			while(lineBottom<b_height){
+				while(lineTop==findNextEmptyLine(bitmap, lineTop, color) && lineTop<b_height) {
+					lineTop++;
+				}
 				lineBottom = findNextEmptyLine(bitmap, lineTop, color);
 				
 				int charColumn = 0;
@@ -358,16 +364,27 @@ public class BitmapText extends Visual {
 				
 				endOfRow = false;
 				while (! endOfRow){
-					charBorder = findNextCharColumn(bitmap,charColumn+1,lineTop,lineBottom,color);
-
 					if(charsProcessed == length){
 						break;
 					}
+					
+					charBorder = findNextCharColumn(bitmap,charColumn+1,lineTop,lineBottom,color);
+					
+					int glyphBorder = charBorder;
+					if(chars.charAt(charsProcessed) != 32) {
 
+						for (;glyphBorder > charColumn + 1; --glyphBorder) {
+							if( !isColumnEmpty(bitmap,glyphBorder, lineTop, lineBottom, color)) {
+								break;
+							}
+						}
+						glyphBorder++;
+					}
+					
 					add( chars.charAt(charsProcessed), 
 						new RectF( (float)(charColumn)/b_width, 
 								   (float)lineTop/b_height, 
-								   (float)(charBorder)/b_width, 
+								   (float)(glyphBorder)/b_width, 
 								   (float)lineBottom/b_height ) );
 					++charsProcessed;
 					charColumn = charBorder;
