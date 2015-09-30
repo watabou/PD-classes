@@ -100,8 +100,8 @@ public class Emitter extends Group {
 			time += Game.elapsed;
 			while (time > interval) {
 				time -= interval;
-				emit( count );
-				if (quantity > 0 && ++count >= quantity) {
+				emit( count++ );
+				if (quantity > 0 && count >= quantity) {
 					on = false;
 					break;
 				}
