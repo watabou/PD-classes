@@ -226,12 +226,14 @@ public class BitmapText extends Visual {
 		"[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\u007F";
 		
 		public static final String CYRILLIC_UPPER =
-		"АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+		"БГДЖЗИЙЛПУФЦЧШЩЪЫЬЭЮЯ"; //"АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
 		
 		public static final String CYRILLIC_LOWER =
-		"абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+		"бвгджзийлмнптуфцчшщъыьэюя";//"абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
 		
-		public static final String ALL_CHARS = LATIN_FULL+SPECIAL_CHAR+SPECIAL_CHAR_UPPER+CYRILLIC_UPPER+CYRILLIC_LOWER;
+		public static final String CYRILLIC =CYRILLIC_UPPER+CYRILLIC_LOWER;
+		
+		public static final String ALL_CHARS = LATIN_FULL+SPECIAL_CHAR+SPECIAL_CHAR_UPPER+CYRILLIC;
 
 		public SmartTexture texture;
 		
@@ -409,6 +411,27 @@ public class BitmapText extends Visual {
 		}
 		
 		public RectF get( char ch ) {
+			
+			//Replace Cyrilic Chars(only equal Cyrillic to Latin)
+			//АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ
+			//абвгдеёжзийклмнопрстуфхцчшщъыьэюя
+			if ((ch == 1025)||(ch == 1105) || ((1040 <= ch)&& (ch <= 1103))){
+				switch (ch) {
+					case 'А': ch='A'; break; case 'а': ch='a'; break;
+					case 'В': ch='B'; break;
+					case 'Е': ch='E'; break; case 'е': ch='e'; break;
+					case 'Ё': ch='Ë'; break; case 'ё': ch='ë'; break;
+					case 'К': ch='K'; break; case 'к': ch='k'; break;
+					case 'М': ch='M'; break;
+					case 'Н': ch='H'; break;
+					case 'О': ch='O'; break; case 'о': ch='o'; break;
+					case 'Р': ch='P'; break; case 'р': ch='p'; break;
+					case 'С': ch='C'; break; case 'с': ch='c'; break;
+					case 'Т': ch='T'; break;
+					case 'Х': ch='X'; break; case 'х': ch='x'; break;
+				}
+			}
+			
 			RectF rec = super.get( autoUppercase ? Character.toUpperCase(ch) : ch );
 
 			//Fix for fonts without accentuation
