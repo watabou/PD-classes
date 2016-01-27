@@ -217,7 +217,7 @@ public class BitmapText extends Visual {
 		"àáâäãąèéêëęìíîïòóôöõùúûüñńçćłśźż";
 		
 		public static final String SPECIAL_CHAR_UPPER =
-		"ÀÁÂÄÃĄÈÉÊËĘÌÍÎÏÒÓÔÖÕÙÚÛÜÑŃÇĆŁŚŹŻº";
+		"ÀÁÂÄÃĄÈÉÊËĘÌÍÎÏÒÓÔÖÕÙÚÛÜÑŃÇĆŁŚŹŻºß";
 
 		public static final String LATIN_UPPER = 
 		" !¡\"#$%&'()*+,-./0123456789:;<=>?¿@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -454,6 +454,7 @@ public class BitmapText extends Visual {
 						.replaceAll("[ÑŃ]",      "N")
 						.replaceAll("[źż]",      "z")
 						.replaceAll("[ŹŻ]",      "Z")
+						.replace(   'ß',         'B')
 						.replace(   'ł',         'l')
 						.replace(   'Ł',         'L')
 						.replace(   'ś',         's')
