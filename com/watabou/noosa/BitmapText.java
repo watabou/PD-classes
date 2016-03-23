@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * This program is free software: you can redistribute it and/or modify
@@ -38,6 +38,8 @@ public class BitmapText extends Visual {
 	public int realLength;
 	
 	protected boolean dirty = true;
+	
+	protected static char INVALID_CHAR = ' ';
 	
 	public BitmapText() {
 		this( "", null );
@@ -112,7 +114,7 @@ public class BitmapText extends Visual {
 			RectF rect = font.get( text.charAt( i ) );
 	
 			if (rect == null) {
-				rect=null;
+				rect = font.get(INVALID_CHAR);
 			}
 			float w = font.width( rect );
 			float h = font.height( rect );
@@ -171,6 +173,10 @@ public class BitmapText extends Visual {
 		for (int i=0; i < length; i++) {
 			RectF rect = font.get( text.charAt( i ) );
 	
+			//Corrigido
+			if (rect == null) {
+				rect = font.get(INVALID_CHAR);
+			}
 			float w = font.width( rect );
 			float h = font.height( rect );
 			
@@ -207,13 +213,28 @@ public class BitmapText extends Visual {
 	}
 	
 	public static class Font extends TextureFilm {
+		public static final String SPECIAL_CHAR =
+		"àáâäãąèéêëęìíîïòóôöõùúûüñńçćłśźż";
 		
+		public static final String SPECIAL_CHAR_UPPER =
+		"ÀÁÂÄÃĄÈÉÊËĘÌÍÎÏÒÓÔÖÕÙÚÛÜÑŃÇĆŁŚŹŻºß";
+
 		public static final String LATIN_UPPER = 
-			" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		" !¡\"#$%&'()*+,-./0123456789:;<=>?¿@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+		public static final String LATIN_FULL = LATIN_UPPER +
+		"[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\u007F";
 		
-		public static final String LATIN_FULL = 
-			" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\u007F";
+		public static final String CYRILLIC_UPPER =
+		"БГДЖЗИЙЛПУФЦЧШЩЪЫЬЭЮЯ"; //"АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
 		
+		public static final String CYRILLIC_LOWER =
+		"бвгджзийлмнптуфцчшщъыьэюя";//"абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+		
+		public static final String CYRILLIC =CYRILLIC_UPPER+CYRILLIC_LOWER;
+		
+		public static final String ALL_CHARS = LATIN_FULL+SPECIAL_CHAR+SPECIAL_CHAR_UPPER+CYRILLIC;
+
 		public SmartTexture texture;
 		
 		public float tracking = 0;
@@ -222,6 +243,8 @@ public class BitmapText extends Visual {
 		public boolean autoUppercase = false;
 		
 		public float lineHeight;
+		
+		private boolean endOfRow = false;
 		
 		protected Font( SmartTexture tx ) {
 			super( tx );
@@ -238,7 +261,7 @@ public class BitmapText extends Visual {
 			
 			texture = tx;
 			
-			autoUppercase = chars.equals( LATIN_UPPER );
+			autoUppercase = chars.equals( LATIN_UPPER+SPECIAL_CHAR_UPPER+CYRILLIC_UPPER );
 			
 			int length = chars.length();
 			
@@ -262,52 +285,114 @@ public class BitmapText extends Visual {
 			lineHeight = baseLine = height;
 		}
 		
+		private int findNextEmptyLine(Bitmap bitmap, int startFrom, int color){
+			int width  = bitmap.getWidth();
+			int height = bitmap.getHeight();
+			
+			int nextEmptyLine = startFrom;
+			
+			for(nextEmptyLine = startFrom; nextEmptyLine < height; ++nextEmptyLine){
+				boolean lineEmpty = true;
+				for(int i = 0;i<width; ++i){
+					lineEmpty = (bitmap.getPixel (i, nextEmptyLine ) == color) && lineEmpty;
+					if(!lineEmpty){
+						break;
+					}
+				}
+				if(lineEmpty){
+					break;
+				}
+			}
+			return nextEmptyLine;
+		}
+		
+		private boolean isColumnEmpty(Bitmap bitmap, int x, int sy, int ey, int color){
+			for(int j = sy; j < ey; ++j){
+				if(bitmap.getPixel(x, j) != color){
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		private int findNextCharColumn(Bitmap bitmap, int sx, int sy, int ey, int color){
+			int width = bitmap.getWidth();
+			
+			int nextEmptyColumn;
+			// find first empty column
+			for(nextEmptyColumn = sx; nextEmptyColumn < width; ++nextEmptyColumn){
+				if(isColumnEmpty(bitmap,nextEmptyColumn, sy, ey, color)){
+					break;
+				}
+			}
+			
+			int nextCharColumn;
+			
+			for(nextCharColumn = nextEmptyColumn; nextCharColumn < width; ++nextCharColumn){
+				if(!isColumnEmpty(bitmap,nextCharColumn, sy, ey, color)){
+					break;
+				}
+			}
+			
+			if(nextCharColumn == width){
+				endOfRow = true;
+				return nextEmptyColumn - 1;
+			}
+			
+			return nextCharColumn-1;
+		}
+		
+		
 		protected void splitBy( Bitmap bitmap, int height, int color, String chars ) {
 			
 			autoUppercase = chars.equals( LATIN_UPPER );
-			int length = chars.length();
+			int length    = chars.length();
 			
-			int width = bitmap.getWidth();
-			float vHeight = (float)height / bitmap.getHeight();
+			int b_width  = bitmap.getWidth();
+			int b_height = bitmap.getHeight();
 			
-			int pos;
+			int charsProcessed = 0;
+			int lineTop        = 0;
+			int lineBottom     = 0;
 			
-		spaceMeasuring:
-			for (pos=0; pos <  width; pos++) {
-				for (int j=0; j < height; j++) {
-					if (bitmap.getPixel( pos, j ) != color) {
-						break spaceMeasuring;
-					}
+			while(lineBottom<b_height){
+				while(lineTop==findNextEmptyLine(bitmap, lineTop, color) && lineTop<b_height) {
+					lineTop++;
 				}
-			}
-			add( ' ', new RectF( 0, 0, (float)pos / width, vHeight ) );
-			
-			for (int i=0; i < length; i++) {
+				lineBottom = findNextEmptyLine(bitmap, lineTop, color);
 				
-				char ch = chars.charAt( i );
-				if (ch == ' ') {
-					continue;
-				} else {
+				int charColumn = 0;
+				int charBorder = 0;
+				
+				endOfRow = false;
+				while (! endOfRow){
+					if(charsProcessed == length){
+						break;
+					}
 					
-					boolean found;
-					int separator = pos;
+					charBorder = findNextCharColumn(bitmap,charColumn+1,lineTop,lineBottom,color);
 					
-					do {
-						if (++separator >= width) {
-							break;
-						}
-						found = true;
-						for (int j=0; j < height; j++) {
-							if (bitmap.getPixel( separator, j ) != color) {
-								found = false;
+					int glyphBorder = charBorder;
+					if(chars.charAt(charsProcessed) != 32) {
+
+						for (;glyphBorder > charColumn + 1; --glyphBorder) {
+							if( !isColumnEmpty(bitmap,glyphBorder, lineTop, lineBottom, color)) {
 								break;
 							}
 						}
-					} while (!found);
+						glyphBorder++;
+					}
 					
-					add( ch, new RectF( (float)pos / width, 0, (float)separator / width, vHeight ) );
-					pos = separator + 1;
+					add( chars.charAt(charsProcessed), 
+						new RectF( (float)(charColumn)/b_width, 
+								   (float)lineTop/b_height, 
+								   (float)(glyphBorder)/b_width, 
+								   (float)lineBottom/b_height ) );
+					++charsProcessed;
+					charColumn = charBorder;
 				}
+
+				lineTop = lineBottom+1;
 			}
 			
 			lineHeight = baseLine = height( frames.get( chars.charAt( 0 ) ) );
@@ -326,7 +411,61 @@ public class BitmapText extends Visual {
 		}
 		
 		public RectF get( char ch ) {
-			return super.get( autoUppercase ? Character.toUpperCase( ch ) : ch );
+			
+			//Replace Cyrilic Chars(only equal Cyrillic to Latin)
+			//АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ
+			//абвгдеёжзийклмнопрстуфхцчшщъыьэюя
+			if ((ch == 1025)||(ch == 1105) || ((1040 <= ch)&& (ch <= 1103))){
+				switch (ch) {
+					case 'А': ch='A'; break; case 'а': ch='a'; break;
+					case 'В': ch='B'; break;
+					case 'Е': ch='E'; break; case 'е': ch='e'; break;
+					case 'Ё': ch='Ë'; break; case 'ё': ch='ë'; break;
+					case 'К': ch='K'; break; case 'к': ch='k'; break;
+					case 'М': ch='M'; break;
+					case 'Н': ch='H'; break;
+					case 'О': ch='O'; break; case 'о': ch='o'; break;
+					case 'Р': ch='P'; break; case 'р': ch='p'; break;
+					case 'С': ch='C'; break; case 'с': ch='c'; break;
+					case 'Т': ch='T'; break;
+					case 'Х': ch='X'; break; case 'х': ch='x'; break;
+				}
+			}
+			
+			RectF rec = super.get( autoUppercase ? Character.toUpperCase(ch) : ch );
+
+			//Fix for fonts without accentuation
+			if ((rec == null) && (ch > 126)){
+				char tmp = ch;
+				String str = (ch+"")
+						.replaceAll("[àáâäãą]",  "a")
+						.replaceAll("[èéêëę]",   "e")
+						.replaceAll("[ìíîï]",    "i")
+						.replaceAll("[òóôöõ]",   "o")
+						.replaceAll("[ùúûü]",    "u")
+						.replaceAll("[ÀÁÂÄÃĄ]",  "A")
+						.replaceAll("[ÈÉÊËĘ]",   "E")
+						.replaceAll("[ÌÍÎÏ]",    "I")
+						.replaceAll("[ÒÓÔÖÕ]",   "O")
+						.replaceAll("[ÙÚÛÜ]",    "U")
+						.replaceAll("[çć]",      "c")
+						.replaceAll("[ÇĆ]",      "C")
+						.replaceAll("[ñń]",      "n")
+						.replaceAll("[ÑŃ]",      "N")
+						.replaceAll("[źż]",      "z")
+						.replaceAll("[ŹŻ]",      "Z")
+						.replace(   'ß',         'B')
+						.replace(   'ł',         'l')
+						.replace(   'Ł',         'L')
+						.replace(   'ś',         's')
+						.replace(   'Ś',         'S')
+						;
+
+				tmp = str.charAt(0);
+				rec = super.get(autoUppercase ? Character.toUpperCase(tmp) : tmp);
+			}
+
+			return rec;
 		}
 	}
 }

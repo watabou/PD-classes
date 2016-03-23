@@ -61,7 +61,6 @@ public class Bundle {
 	public ArrayList<String> fields() {
 		ArrayList<String> result = new ArrayList<String>();
 		
-		@SuppressWarnings("unchecked")
 		Iterator<String> iterator = data.keys();
 		while (iterator.hasNext()) {
 			result.add( iterator.next() );

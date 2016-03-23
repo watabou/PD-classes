@@ -34,6 +34,7 @@ public enum Sample implements SoundPool.OnLoadCompleteListener {
 
 	public static final int MAX_STREAMS = 8;
 	
+	@SuppressWarnings("deprecation")
 	protected SoundPool pool = 
 		new SoundPool( MAX_STREAMS, AudioManager.STREAM_MUSIC, 0 );
 	
@@ -42,6 +43,7 @@ public enum Sample implements SoundPool.OnLoadCompleteListener {
 	
 	private boolean enabled = true;
 	
+	@SuppressWarnings("deprecation")
 	public void reset() {
 
 		pool.release();
