@@ -83,8 +83,8 @@ public class PointF {
 	}
 	
 	public PointF polar( float a, float l ) {
-		this.x = l * FloatMath.cos( a );
-		this.y = l * FloatMath.sin( a );
+		this.x = l * (float) Math.cos( a );
+		this.y = l * (float) Math.sin( a );
 		return this;
 	}
 	
@@ -118,7 +118,7 @@ public class PointF {
 	}
 	
 	public float length() {
-		return FloatMath.sqrt( x * x + y * y );
+		return (float) Math.sqrt( x * x + y * y );
 	}
 	
 	public static PointF sum( PointF a, PointF b ) {
@@ -136,7 +136,7 @@ public class PointF {
 	public static float distance( PointF a, PointF b ) {
 		float dx = a.x - b.x;
 		float dy = a.y - b.y;
-		return FloatMath.sqrt( dx * dx + dy * dy );
+		return (float) Math.sqrt( dx * dx + dy * dy );
 	}
 	
 	public static float angle( PointF start, PointF end ) {
