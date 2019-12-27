@@ -4,18 +4,19 @@ plugins {
     `maven-publish`
 }
 
+group = "com.jordigarcial.watabou"
+version = "1.02"
+
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = "com.jordigarcial.watabou"
-            artifactId = "pixel-library"
-            version = "1.0"
-            components["java"]
+
+            from(components["java"])
         }
     }
     repositories {
         maven {
-            url = uri("https://maven.pkg.github.com/JordiGarcL/PD-classes")
+            url = uri("https://maven.pkg.github.com/JordiGarcL/pixel-library")
             credentials {
                 username = extra["github_username"] as String?
                 password = extra["github_token"] as String?
