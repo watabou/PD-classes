@@ -19,10 +19,10 @@ publishing {
     }
     repositories {
         maven {
-            url = uri("https://maven.pkg.github.com/JordiGarcL/pixel-library")
+            url = uri(extra["github_repo_url"].toString())
             credentials {
-                username = extra["github_username"] as String?
-                password = extra["github_token"] as String?
+                username = extra["github_username"].toString()
+                password = extra["github_token"].toString()
             }
         }
     }
